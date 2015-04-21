@@ -64,8 +64,7 @@ public class MainFrame {
 			
 			System.out.println("Committers: " + committers.size());
 			System.out.println("Speculative Pairs: " + speculativePairs.size());
-			System.out.println("Merge Pairs: " + mergePairs.size());
-		 
+			System.out.println("Merge Pairs: " + mergePairs.size());		 
 	 }
 	 
 	 
