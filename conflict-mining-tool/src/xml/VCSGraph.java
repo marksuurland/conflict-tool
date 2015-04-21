@@ -8,39 +8,41 @@ import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import program.XMLTools;
+import adapter.JdomAdapter;
 
 public class VCSGraph
 {
-
 	public static VCSGraph readXML(String xml)
 	{
 		System.out.println("VCSGraph::readXML( " + xml + " )");
+		Document doc = JdomAdapter.readXMLDocument(xml);
+		return initGraph(doc);
+	}
 
-		Document doc = XMLTools.readXMLDocument(xml);
-
+	private static VCSGraph initGraph(Document doc)
+	{
 		Hashtable<String, Node> nodes = new Hashtable<String, Node>();
 		HashSet<Edge> edges = new HashSet<Edge>();
 		HashSet<NodePair> speculativeMerges = new HashSet<NodePair>();
 		HashSet<NodePair> actualMerges = new HashSet<NodePair>();
 
 		Element rootElement = doc.getRootElement();
-		Element commitsElement = rootElement.getChild("commits");
-		Element commitStructureElement = rootElement.getChild("commitStructure");
-		Element speculativeMergesElement = rootElement.getChild("speculativeMerges");
-		Element knownMergesElement = rootElement.getChild("knownMerges");
+		List<Element> commitsElement = rootElement.getChild("commits").getChildren();
+		List<Element> relationshipElements = rootElement.getChild("commitStructure").getChildren();
+		List<Element> speculativeMergesElements = rootElement.getChild("speculativeMerges").getChildren();
+		List<Element> knownMerges = rootElement.getChild("knownMerges").getChildren();
 
-		for (Element commitElement : (List<Element>) commitsElement.getChildren()) {
-			String hash = commitElement.getAttributeValue("hash");
-			String committer = commitElement.getAttributeValue("dev");
-			String time = commitElement.getAttributeValue("time");
+		for (Element commit : commitsElement) {
+			String hash = commit.getAttributeValue("hash");
+			String committer = commit.getAttributeValue("dev");
+			String time = commit.getAttributeValue("time");
 
 			// XXX: should be base node or some such
 			Node node = new BaseNode(hash, committer, new Date(Long.parseLong(time)));
 			nodes.put(hash, node);
 		}
 
-		for (Element relationshipElement : (List<Element>) commitStructureElement.getChildren()) {
+		for (Element relationshipElement : relationshipElements) {
 			String child = relationshipElement.getAttributeValue("child");
 			String parent = relationshipElement.getAttributeValue("parent");
 
@@ -52,7 +54,7 @@ public class VCSGraph
 			edges.add(edge);
 		}
 
-		for (Element mergeElement : (List<Element>) speculativeMergesElement.getChildren()) {
+		for (Element mergeElement : speculativeMergesElements) {
 			String first = mergeElement.getAttributeValue("first");
 			String second = mergeElement.getAttributeValue("second");
 			String conflict = mergeElement.getAttributeValue("conflict");
@@ -70,7 +72,7 @@ public class VCSGraph
 			speculativeMerges.add(pair);
 		}
 
-		for (Element mergeElement : (List<Element>) knownMergesElement.getChildren()) {
+		for (Element mergeElement : knownMerges) {
 			String first = mergeElement.getAttributeValue("first");
 			String second = mergeElement.getAttributeValue("second");
 			String conflict = mergeElement.getAttributeValue("conflict");
@@ -88,7 +90,7 @@ public class VCSGraph
 		}
 
 		VCSGraph vcsGraph = new VCSGraph();
-		// gitGraph.setNodes(nodes);
+		
 		for (Node node : nodes.values()) {
 			vcsGraph.addVertex(node);
 		}
@@ -97,8 +99,8 @@ public class VCSGraph
 			vcsGraph.addEdge(edge, edge.getParent(), edge.getChild());
 		}
 
-		vcsGraph.setKnownMerges(actualMerges);
-		vcsGraph.setSpeculativeMerges(speculativeMerges);
+		//vcsGraph.setKnownMerges(actualMerges);
+		//vcsGraph.setSpeculativeMerges(speculativeMerges);
 
 		return vcsGraph;
 	}
