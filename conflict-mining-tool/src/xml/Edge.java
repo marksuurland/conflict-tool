@@ -3,23 +3,42 @@ package xml;
 
 public class Edge
 {
-	private Node _parent;
-	private Node _child;
+	private Node _first;
+	private Node _second;
+	private boolean _hasConflict;
+	private boolean _conflictSet;
 	
-	public Edge(Node parentNode, Node childNode)
+	public Edge(Node firstNode, Node secondNode)
 	{
-		_parent = parentNode;
-		_child = childNode;
+		_first = firstNode;
+		_second = secondNode;
 	}
 
-	public Node getParent()
+	public Node getFirst()
 	{
-		return _parent;
+		return _first;
 	}
 
-	public Node getChild()
+	public Node getSecond()
 	{
-		return _child;
+		return _second;
+	}
+	
+	public void setConflict(boolean conflict) {
+		_conflictSet = true;
+		_hasConflict = conflict;
+	}
+
+	public boolean conflictSet() {
+		return _conflictSet;
+	}
+
+	public boolean hasConflict() {
+		if (_conflictSet) {
+			return _hasConflict;
+		} else {
+			throw new RuntimeException("VCSNodePair::hasConflict() - conflicts not set for: " + this);
+		}
 	}
 
 }

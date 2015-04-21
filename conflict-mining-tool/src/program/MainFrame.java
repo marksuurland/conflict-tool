@@ -3,8 +3,8 @@ package program;
 import java.io.File;
 import java.util.HashSet;
 
+import xml.Edge;
 import xml.Node;
-import xml.NodePair;
 import xml.VCSGraph;
 import git.Constants;
 import git.TimeUtility;
@@ -52,8 +52,8 @@ public class MainFrame {
 	 
 	 private void xmlData()
 	 {
-			final HashSet<NodePair> mergePairs = vcsGraph.getKnownMerges();
-			final HashSet<NodePair> speculativePairs = vcsGraph.getSpeculativeMerges();
+			final HashSet<Edge> mergePairs = vcsGraph.getKnownMerges();
+			final HashSet<Edge> speculativePairs = vcsGraph.getSpeculativeMerges();
 			
 			System.out.println("Commits: " + vcsGraph.getVertexCount());
 			

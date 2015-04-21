@@ -15,16 +15,16 @@ public class VCSGraph extends DirectedSparseGraph<Node, Edge>
 {
 	private static final long serialVersionUID = 1L;
 
-	private HashSet<NodePair> _knownMergePairs;
+	private HashSet<Edge> _knownMergePairs;
 
-	private HashSet<NodePair> _speculativeMergePairs;
+	private HashSet<Edge> _speculativeMergePairs;
 	
-	private void setSpeculativeMerges(HashSet<NodePair> speculativeMerges)
+	private void setSpeculativeMerges(HashSet<Edge> speculativeMerges)
 	{
 		_speculativeMergePairs = speculativeMerges;		
 	}
 
-	private void setKnownMerges(HashSet<NodePair> actualMerges)
+	private void setKnownMerges(HashSet<Edge> actualMerges)
 	{
 		_knownMergePairs = actualMerges;	
 	}
@@ -40,8 +40,8 @@ public class VCSGraph extends DirectedSparseGraph<Node, Edge>
 	{
 		Hashtable<String, Node> nodes = new Hashtable<String, Node>();
 		HashSet<Edge> edges = new HashSet<Edge>();
-		HashSet<NodePair> speculativeMerges = new HashSet<NodePair>();
-		HashSet<NodePair> actualMerges = new HashSet<NodePair>();
+		HashSet<Edge> speculativeMerges = new HashSet<Edge>();
+		HashSet<Edge> actualMerges = new HashSet<Edge>();
 
 		Element rootElement = doc.getRootElement();
 		List<Element> commitsElement = rootElement.getChild("commits").getChildren();
@@ -75,13 +75,13 @@ public class VCSGraph extends DirectedSparseGraph<Node, Edge>
 
 		for (Edge edge : edges) 
 		{			
-			vcsGraph.addEdge(edge, edge.getParent(), edge.getChild());
+			vcsGraph.addEdge(edge, edge.getFirst(), edge.getSecond());
 		}
 		return vcsGraph;
 	}
 	
 	private static void checkMerges(Hashtable<String, Node> nodes,
-			HashSet<NodePair> merges,
+			HashSet<Edge> merges,
 			List<Element> mergesElements)
 	{
 		for (Element mergeElement : mergesElements)
@@ -93,13 +93,13 @@ public class VCSGraph extends DirectedSparseGraph<Node, Edge>
 		Node firstNode = nodes.get(first);
 		Node secondNode = nodes.get(second);
 
-		NodePair pair = new NodePair(firstNode, secondNode);
+		Edge edge = new Edge(firstNode, secondNode);
 		
 		if (conflict != null) {
 			// if the conflict hasn't been set
-			pair.setConflict(Boolean.parseBoolean(conflict));
+			edge.setConflict(Boolean.parseBoolean(conflict));
 		}		
-		merges.add(pair);
+		merges.add(edge);
 		}
 	}
 
@@ -139,13 +139,13 @@ public class VCSGraph extends DirectedSparseGraph<Node, Edge>
 		// TODO Auto-generated method stub		
 	}
 
-	public HashSet<NodePair> getSpeculativeMerges()
+	public HashSet<Edge> getSpeculativeMerges()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public HashSet<NodePair> getKnownMerges()
+	public HashSet<Edge> getKnownMerges()
 	{
 		// TODO Auto-generated method stub
 		return null;
