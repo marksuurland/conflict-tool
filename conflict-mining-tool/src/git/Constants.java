@@ -28,7 +28,6 @@ public class Constants {
 	public static String DOT_FINAL = REPOSITORY_PREFIX + PROJECT + "_out_final.dot";
 
 	//Settings 
-	public static final boolean RECOVER_PREVIOUS = true;
 	public final static int POOL_SIZE = 1;
 	public final static int TMP_WRITE_FREQ = 100;
 
