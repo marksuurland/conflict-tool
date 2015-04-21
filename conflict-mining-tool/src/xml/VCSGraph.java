@@ -8,10 +8,27 @@ import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import adapter.JdomAdapter;
 
-public class VCSGraph
+public class VCSGraph extends DirectedSparseGraph<Node, Edge> 
 {
+	private static final long serialVersionUID = 1L;
+
+	private HashSet<NodePair> _knownMergePairs;
+
+	private HashSet<NodePair> _speculativeMergePairs;
+	
+	private void setSpeculativeMerges(HashSet<NodePair> speculativeMerges)
+	{
+		_speculativeMergePairs = speculativeMerges;		
+	}
+
+	private void setKnownMerges(HashSet<NodePair> actualMerges)
+	{
+		_knownMergePairs = actualMerges;	
+	}
+	
 	public static VCSGraph readXML(String xml)
 	{
 		System.out.println("VCSGraph::readXML( " + xml + " )");
@@ -32,16 +49,63 @@ public class VCSGraph
 		List<Element> speculativeMergesElements = rootElement.getChild("speculativeMerges").getChildren();
 		List<Element> knownMerges = rootElement.getChild("knownMerges").getChildren();
 
-		for (Element commit : commitsElement) {
-			String hash = commit.getAttributeValue("hash");
-			String committer = commit.getAttributeValue("dev");
-			String time = commit.getAttributeValue("time");
+		checkCommits(nodes, commitsElement);
+		
+		checkRelations(nodes, edges, relationshipElements);		
+	
+		checkMerges(nodes, speculativeMerges,speculativeMergesElements);
+		checkMerges(nodes, actualMerges, knownMerges);
 
-			// XXX: should be base node or some such
-			Node node = new BaseNode(hash, committer, new Date(Long.parseLong(time)));
-			nodes.put(hash, node);
+		VCSGraph vcsGraph = createGraph(nodes, edges);
+		
+		vcsGraph.setKnownMerges(actualMerges);
+		vcsGraph.setSpeculativeMerges(speculativeMerges);
+
+		return vcsGraph;
+	}
+
+	private static VCSGraph createGraph(Hashtable<String, Node> nodes,
+			HashSet<Edge> edges)
+	{
+		VCSGraph vcsGraph = new VCSGraph();		
+		for (Node node : nodes.values()) 
+		{
+			vcsGraph.addVertex(node);
 		}
 
+		for (Edge edge : edges) 
+		{			
+			vcsGraph.addEdge(edge, edge.getParent(), edge.getChild());
+		}
+		return vcsGraph;
+	}
+	
+	private static void checkMerges(Hashtable<String, Node> nodes,
+			HashSet<NodePair> merges,
+			List<Element> mergesElements)
+	{
+		for (Element mergeElement : mergesElements)
+		{
+		String first = mergeElement.getAttributeValue("first");
+		String second = mergeElement.getAttributeValue("second");
+		String conflict = mergeElement.getAttributeValue("conflict");
+
+		Node firstNode = nodes.get(first);
+		Node secondNode = nodes.get(second);
+
+		NodePair pair = new NodePair(firstNode, secondNode);
+		
+		if (conflict != null) {
+			// if the conflict hasn't been set
+			pair.setConflict(Boolean.parseBoolean(conflict));
+		}		
+		merges.add(pair);
+		}
+	}
+
+	private static void checkRelations(Hashtable<String, Node> nodes,
+			HashSet<Edge> edges, List<Element> relationshipElements)
+	{
 		for (Element relationshipElement : relationshipElements) {
 			String child = relationshipElement.getAttributeValue("child");
 			String parent = relationshipElement.getAttributeValue("parent");
@@ -53,68 +117,38 @@ public class VCSGraph
 			Edge edge = new Edge(parentNode, childNode);
 			edges.add(edge);
 		}
-
-		for (Element mergeElement : speculativeMergesElements) {
-			String first = mergeElement.getAttributeValue("first");
-			String second = mergeElement.getAttributeValue("second");
-			String conflict = mergeElement.getAttributeValue("conflict");
-
-			Node firstNode = nodes.get(first);
-			Node secondNode = nodes.get(second);
-
-			NodePair pair = new NodePair(firstNode, secondNode);
-
-			if (conflict != null) {
-				// if the conflict hasn't been set
-				pair.setConflict(Boolean.parseBoolean(conflict));
-			}
-
-			speculativeMerges.add(pair);
-		}
-
-		for (Element mergeElement : knownMerges) {
-			String first = mergeElement.getAttributeValue("first");
-			String second = mergeElement.getAttributeValue("second");
-			String conflict = mergeElement.getAttributeValue("conflict");
-
-			Node firstNode = nodes.get(first);
-			Node secondNode = nodes.get(second);
-
-			NodePair pair = new NodePair(firstNode, secondNode);
-			if (conflict != null) {
-				// if the conflict hasn't been set
-				pair.setConflict(Boolean.parseBoolean(conflict));
-			}
-
-			actualMerges.add(pair);
-		}
-
-		VCSGraph vcsGraph = new VCSGraph();
-		
-		for (Node node : nodes.values()) {
-			vcsGraph.addVertex(node);
-		}
-
-		for (Edge edge : edges) {
-			vcsGraph.addEdge(edge, edge.getParent(), edge.getChild());
-		}
-
-		//vcsGraph.setKnownMerges(actualMerges);
-		//vcsGraph.setSpeculativeMerges(speculativeMerges);
-
-		return vcsGraph;
 	}
 
-	private void addVertex(xml.Node node)
+	private static void checkCommits(Hashtable<String, Node> nodes,
+			List<Element> commitsElement)
 	{
-		// TODO Auto-generated method stub
-		
+		for (Element commit : commitsElement) {
+			String hash = commit.getAttributeValue("hash");
+			String committer = commit.getAttributeValue("dev");
+			String time = commit.getAttributeValue("time");
+
+			// XXX: should be base node or some such
+			Node node = new BaseNode(hash, committer, new Date(Long.parseLong(time)));
+			nodes.put(hash, node);
+		}
 	}
 
-	public static void writeXML(String xML_TMP, VCSGraph vcsGraph)
+
+	public static void writeXML(String xml, VCSGraph vcsGraph)
+	{
+		// TODO Auto-generated method stub		
+	}
+
+	public HashSet<NodePair> getSpeculativeMerges()
 	{
 		// TODO Auto-generated method stub
-		
+		return null;
+	}
+
+	public HashSet<NodePair> getKnownMerges()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
