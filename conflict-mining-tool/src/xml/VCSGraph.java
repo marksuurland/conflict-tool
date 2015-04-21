@@ -139,16 +139,12 @@ public class VCSGraph extends DirectedSparseGraph<Node, Edge>
 		// TODO Auto-generated method stub		
 	}
 
-	public HashSet<Edge> getSpeculativeMerges()
-	{
-		// TODO Auto-generated method stub
-		return null;
+	public HashSet<Edge> getKnownMerges() {
+		return _knownMergePairs;
 	}
 
-	public HashSet<Edge> getKnownMerges()
-	{
-		// TODO Auto-generated method stub
-		return null;
+	public HashSet<Edge> getSpeculativeMerges() {
+		return _speculativeMergePairs;
 	}
 
 }
