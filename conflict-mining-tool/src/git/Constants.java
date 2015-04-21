@@ -31,7 +31,7 @@ public class Constants {
 	public final static int POOL_SIZE = 1;
 	public final static int TMP_WRITE_FREQ = 100;
 
-	//Git instal path
+	//Git install path
 	public static String GIT_PATH = "C:\\Users\\Mark\\AppData\\Local\\GitHub\\PortableGit_c2ba306e536fdf878271f7fe636a147ff37326ad\\bin\\git.exe";
 
 	public static void setProject(String project) {

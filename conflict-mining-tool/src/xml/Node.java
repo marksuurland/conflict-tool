@@ -1,12 +1,18 @@
 package xml;
 
-public class Node
-{
+import java.util.Date;
+import java.util.HashSet;
 
-	public void addParent(Node parentNode)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+public interface Node
+{
+	public void addParent(Node node);
+
+	public String getCommitter();
+	
+	public String getHash();
+	
+	public HashSet<Node> getParents();
+	
+	public Date getTime();
 
 }

@@ -1,4 +1,4 @@
-package program;
+package graph;
 
 import xml.VCSGraph;
 
